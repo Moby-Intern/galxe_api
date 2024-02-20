@@ -3,6 +3,7 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+CORS(app, resources={r"/wallet-info/$address": {"origins": "https://galxe.com"}})
 WHITELISTED_IPS = {'35.185.209.0', '35.203.155.18'}
 
 # JSON Data Loading...
@@ -37,6 +38,7 @@ def ip_whitelisted(f):
     return decorated_function
 
 @app.route('/wallet-info/$address')
+@ip_whitelisted
 def wallet_info(wallet_address):
     url = 'https://moby-data-testnet.s3.ap-northeast-2.amazonaws.com/competition-data.json'
     data = fetch_json_data(url)
@@ -49,10 +51,6 @@ def wallet_info(wallet_address):
             return jsonify({'message': 'Wallet address not found'}), 404
     else:
         return jsonify({'message': 'Failed to fetch data'}), 500
-
-
-app = Flask(__name__)
-CORS(app, resources={r"/wallet-info/$address": {"origins": "https://galxe.com"}})
 
 if __name__ == '__main__':
     app.run(debug=True)
