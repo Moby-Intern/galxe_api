@@ -3,8 +3,6 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
-CORS(app, resources={r"/wallet-info/$address": {"origins": "https://galxe.com"}})
-WHITELISTED_IPS = {'35.185.209.0', '35.203.155.18'}
 
 # JSON Data Loading...
 def fetch_json_data(url):
@@ -37,8 +35,7 @@ def ip_whitelisted(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@app.route('/wallet-info/$address')
-@ip_whitelisted
+@app.route('/wallet-info/<wallet_address>')
 def wallet_info(wallet_address):
     url = 'https://moby-data-testnet.s3.ap-northeast-2.amazonaws.com/competition-data.json'
     data = fetch_json_data(url)
@@ -46,11 +43,18 @@ def wallet_info(wallet_address):
     if data:
         user_data = get_Week4_info(wallet_address, data)
         if user_data:
-            return jsonify(user_data)
+            response = jsonify(user_data)
+            response.headers['Access-Control-Allow-Origin'] = 'https://galxe.com'
+            return response
         else:
-            return jsonify({'message': 'Wallet address not found'}), 404
+            response = jsonify({'message': 'Wallet address not found'}), 404
+            response.headers['Access-Control-Allow-Origin'] = 'https://galxe.com'
+            return response
     else:
-        return jsonify({'message': 'Failed to fetch data'}), 500
+        response = jsonify({'message': 'Failed to fetch data'}), 500
+        response.headers['Access-Control-Allow-Origin'] = 'https://galxe.com'
+        return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
