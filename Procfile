@@ -1,1 +1,1 @@
-worker: python Test-Bot.py
+worker: python Galxe_MOBR2_API.py
